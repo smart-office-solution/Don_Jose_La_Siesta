@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Don José – La Siesta</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+/* BOTÓN */
+#chatButton {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background: #25d366;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  cursor: pointer;
+  z-index: 9999;
+}
+
+/* CHAT */
+#chatBox {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 350px;
+  height: 500px;
+  background: white;
+  border-radius: 10px;
+  display: none;
+  flex-direction: column;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  overflow: hidden;
+  z-index: 9999;
+}
+
+/* HEADER */
+#header {
+  background: #25d366;
+  color: white;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* AVATAR */
+#avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+/* MENSAJES */
+#messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  background: #ece5dd;
+}
+
+.msg {
+  display: flex;
+  align-items: flex-end;
+  margin: 5px 0;
+}
+
+.msg.user {
+  justify-content: flex-end;
+}
+
+.bubble {
+  padding: 8px 12px;
+  border-radius: 10px;
+  max-width: 70%;
+}
+
+.user .bubble {
+  background: #dcf8c6;
+}
+
+.bot .bubble {
+  background: white;
+}
+
+/* TYPING DOTS */
+#typing {
+  display: none;
+  padding: 10px;
+}
+
+.dots span {
+  animation: blink 1.4s infinite;
+  font-size: 20px;
+}
+
+.dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0% { opacity: 0.2; }
+  20% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+
+/* INPUT */
+#inputArea {
+  display: flex;
+  border-top: 1px solid #ccc;
+}
+
+input {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  font-size: 16px;
+}
+
+button {
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+#sendBtn {
+  background: #25d366;
+  color: white;
+}
+
+#resetBtn {
+  background: #ff5c5c;
+  color: white;
+}
+
+/* MÓVIL FULLSCREEN */
+@media (max-width: 600px) {
+  #chatBox {
+    width: 100%;
+    height: 100%;
+    bottom: 0;
+    right: 0;
+    border-radius: 0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="chatButton">💬</div>
+
+<div id="chatBox">
+  <div id="header">
+    <div id="avatar">🍷</div>
+    <div>Don José</div>
+  </div>
+
+  <div id="messages"></div>
+
+  <div id="typing">
+    <div class="dots">
+      <span>.</span><span>.</span><span>.</span>
+    </div>
+  </div>
+
+  <div id="inputArea">
+    <input id="input" placeholder="Nachricht..." />
+    <button id="sendBtn">➤</button>
+    <button id="resetBtn">⟲</button>
+  </div>
+</div>
+
+<script>
+let sessionId = crypto.randomUUID();
+const webhook = "https://n8n.smart-office.es/webhook/a4aee6e5-844d-42a8-b8b9-32b4284f036b/chat";
+
+const chatBox = document.getElementById("chatBox");
+
+document.getElementById("chatButton").onclick = () => {
+  if (chatBox.style.display === "flex") {
+    chatBox.style.display = "none";
+    resetSession(); // RESET AL CERRAR
+  } else {
+    chatBox.style.display = "flex";
+  }
+};
+
+function addMessage(text, sender) {
+  const div = document.createElement("div");
+  div.className = "msg " + sender;
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.innerText = text;
+
+  div.appendChild(bubble);
+  document.getElementById("messages").appendChild(div);
+  div.scrollIntoView();
+}
+
+document.getElementById("input").addEventListener("keypress", e => {
+  if (e.key === "Enter") send();
+});
+
+async function send() {
+  const input = document.getElementById("input");
+  const text = input.value;
+  if (!text) return;
+
+  addMessage(text, "user");
+  input.value = "";
+
+  document.getElementById("typing").style.display = "block";
+
+  try {
+    const res = await fetch(webhook, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ message: text, sessionId })
+    });
+
+    const data = await res.json();
+
+    document.getElementById("typing").style.display = "none";
+    addMessage(data.reply, "bot");
+
+  } catch (err) {
+    document.getElementById("typing").style.display = "none";
+    addMessage("Error de conexión.", "bot");
+  }
+}
+
+// RESET COMPLETO
+function resetSession() {
+  document.getElementById("messages").innerHTML = "";
+  sessionId = crypto.randomUUID();
+
+  fetch(webhook + "/reset", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ sessionId })
+  });
+
+  addMessage("Hallo! Willkommen bei La Siesta 😊 Möchten Sie etwas essen oder soll ich Ihnen etwas empfehlen?", "bot");
+}
+
+document.getElementById("resetBtn").onclick = resetSession;
+
+// MENSAJE INICIAL
+addMessage("Hallo! Willkommen bei La Siesta 😊 Möchten Sie etwas essen oder soll ich Ihnen etwas empfehlen?", "bot");
+</script>
+
+</body>
+</html>
