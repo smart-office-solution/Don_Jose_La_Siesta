@@ -3,210 +3,475 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Don José – La Siesta</title>
-
+<title>Don José – La Siesta Marburg</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-}
+  /* ── Reset ── */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-#chatButton {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 60px;
-  height: 60px;
-  background: #25d366;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  cursor: pointer;
-  z-index: 9999;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-}
+  /* ── Landing Hero ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 2rem;
+    font-family: 'Lato', sans-serif;
+  }
 
-#chatBox {
-  position: fixed;
-  bottom: 90px;
-  right: 20px;
-  width: 350px;
-  height: 500px;
-  background: white;
-  border-radius: 10px;
-  display: none;
-  flex-direction: column;
-  box-shadow: 0 0 15px rgba(0,0,0,0.3);
-  overflow: hidden;
-  z-index: 9999;
-}
+  .bg-image {
+    position: absolute;
+    inset: 0;
+    background-image: url('https://www.gastro-mrbrg.de/gallery_gen/b7f7b5a58996d94fc1e0651a0b4bdec0_2840x2291_0x104_2840x2596_crop.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.45) saturate(1.2);
+  }
 
-#header {
-  background: #25d366;
-  color: white;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+  .bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(15, 8, 2, 0.3) 0%,
+      rgba(180, 30, 20, 0.12) 40%,
+      rgba(15, 8, 2, 0.88) 100%
+    );
+  }
 
-#avatar {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-}
+  .top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 2.5rem;
+    z-index: 10;
+  }
 
-#messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px;
-  background: #ece5dd;
-}
+  .logo-img {
+    height: 58px;
+    filter: brightness(0) invert(1);
+    opacity: 0.92;
+  }
 
-.msg {
-  display: flex;
-  align-items: flex-end;
-  margin: 5px 0;
-}
+  .logo-fallback {
+    display: none;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: #fff;
+    font-style: italic;
+  }
 
-.msg.user { justify-content: flex-end; }
+  .top-tagline {
+    font-weight: 300;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+  }
 
-.bubble {
-  padding: 8px 12px;
-  border-radius: 10px;
-  max-width: 70%;
-  word-break: break-word;
-}
+  .content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    max-width: 680px;
+  }
 
-.user .bubble { background: #dcf8c6; }
-.bot  .bubble { background: white; }
+  .avatar-ring {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    border: 2px solid rgba(232, 168, 124, 0.5);
+    padding: 4px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-#typing {
-  display: none;
-  padding: 10px;
-  background: #ece5dd;
-}
-
-.dots span {
-  animation: blink 1.4s infinite;
-  font-size: 20px;
-}
-.dots span:nth-child(2) { animation-delay: 0.2s; }
-.dots span:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes blink {
-  0%   { opacity: 0.2; }
-  20%  { opacity: 1; }
-  100% { opacity: 0.2; }
-}
-
-#inputArea {
-  display: flex;
-  border-top: 1px solid #ccc;
-}
-
-#inputArea input {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  font-size: 16px;
-  outline: none;
-}
-
-#inputArea button {
-  border: none;
-  padding: 10px 14px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-#sendBtn  { background: #25d366; color: white; }
-#resetBtn { background: #ff5c5c; color: white; }
-
-@media (max-width: 600px) {
-  #chatBox {
+  .avatar-inner {
     width: 100%;
     height: 100%;
-    bottom: 0;
-    right: 0;
-    border-radius: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8B1A1A 0%, #c0392b 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: #fff;
+    font-style: italic;
   }
-}
+
+  .eyebrow {
+    font-weight: 300;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: #e8a87c;
+    margin-bottom: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .eyebrow::before, .eyebrow::after {
+    content: '';
+    display: block;
+    width: 30px;
+    height: 1px;
+    background: #e8a87c;
+    opacity: 0.6;
+  }
+
+  .main-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.6rem, 7vw, 4.2rem);
+    font-weight: 400;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 0.4rem;
+  }
+  .main-title em { font-style: italic; color: #e8a87c; }
+
+  .subtitle {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    font-style: italic;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 2rem;
+  }
+
+  .desc {
+    font-weight: 300;
+    font-size: 1rem;
+    line-height: 1.85;
+    color: rgba(255,255,255,0.72);
+    margin-bottom: 2.5rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .desc strong { color: #e8c49a; font-weight: 400; }
+
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #c0392b;
+    color: #fff;
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 1rem 2.4rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.2s, transform 0.1s;
+    margin-bottom: 0.9rem;
+  }
+  .cta-btn:hover { background: #a93226; transform: translateY(-1px); }
+
+  .cta-note {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.08em;
+  }
+
+  .bottom-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 36px;
+    padding: 1.2rem 2rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    z-index: 10;
+    flex-wrap: wrap;
+  }
+  .info-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 3px;
+  }
+  .info-value {
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+    font-weight: 300;
+  }
+  .sep { width: 1px; height: 26px; background: rgba(255,255,255,0.1); }
+
+  /* ── Chat widget (tu código original, mínimos ajustes) ── */
+  #chatButton {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    background: #c0392b;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    transition: background 0.2s, transform 0.15s;
+  }
+  #chatButton:hover { background: #a93226; transform: scale(1.07); }
+
+  #chatBox {
+    position: fixed;
+    bottom: 94px;
+    right: 24px;
+    width: 350px;
+    height: 500px;
+    background: white;
+    border-radius: 12px;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+    overflow: hidden;
+    z-index: 9999;
+  }
+
+  #header {
+    background: #c0392b;
+    color: white;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Lato', sans-serif;
+  }
+
+  #avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: #fff;
+  }
+
+  #header-info { flex: 1; }
+  #header-name { font-weight: 700; font-size: 14px; }
+  #header-sub  { font-size: 11px; opacity: 0.75; font-weight: 300; }
+
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    background: #f5ede8;
+  }
+
+  .msg { display: flex; align-items: flex-end; margin: 5px 0; }
+  .msg.user { justify-content: flex-end; }
+
+  .bubble {
+    padding: 8px 12px;
+    border-radius: 10px;
+    max-width: 75%;
+    word-break: break-word;
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .user .bubble { background: #dcf8c6; }
+  .bot  .bubble { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+  #typing { display: none; padding: 10px; background: #f5ede8; }
+  .dots span { animation: blink 1.4s infinite; font-size: 20px; }
+  .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes blink {
+    0%   { opacity: 0.2; }
+    20%  { opacity: 1; }
+    100% { opacity: 0.2; }
+  }
+
+  #inputArea {
+    display: flex;
+    border-top: 1px solid #e0d5d0;
+    background: #fff;
+  }
+  #inputArea input {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    font-size: 15px;
+    outline: none;
+    font-family: 'Lato', sans-serif;
+  }
+  #inputArea button {
+    border: none;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: opacity 0.15s;
+  }
+  #inputArea button:hover { opacity: 0.8; }
+  #sendBtn  { background: #c0392b; color: white; }
+  #resetBtn { background: #e8e0db; color: #666; }
+
+  @media (max-width: 600px) {
+    #chatBox {
+      width: 100%;
+      height: 100%;
+      bottom: 0;
+      right: 0;
+      border-radius: 0;
+    }
+    .bottom-bar { display: none; }
+    .top-tagline { display: none; }
+  }
 </style>
 </head>
-
 <body>
 
-<div id="chatButton">💬</div>
+<!-- ══════════════════════════════════════════
+     LANDING HERO
+══════════════════════════════════════════ -->
+<div class="hero">
+  <div class="bg-image"></div>
+  <div class="bg-overlay"></div>
+
+  <div class="top-bar">
+    <img class="logo-img"
+      src="https://www.gastro-mrbrg.de/gallery_gen/35a137fb7646eb547a133f4a97c1308e_200x158_fit.png"
+      alt="La Siesta"
+      onerror="this.style.display='none'; document.querySelector('.logo-fallback').style.display='block'">
+    <span class="logo-fallback">La Siesta</span>
+    <span class="top-tagline">Marburg · Tapas-Restaurant</span>
+  </div>
+
+  <div class="content">
+    <div class="avatar-ring">
+      <div class="avatar-inner">J</div>
+    </div>
+
+    <div class="eyebrow">Ihr digitaler Tischbegleiter</div>
+
+    <h1 class="main-title">
+      Hola! Ich bin<br><em>Don José</em>
+    </h1>
+    <p class="subtitle">Ihr persönlicher Camarero</p>
+
+    <p class="desc">
+      Ich erkläre Ihnen unsere <strong>hausgemachten Tapas</strong>, empfehle das
+      passende Gericht für Ihren Geschmack und beantworte alle Fragen rund um
+      unsere <strong>spanische Küche</strong> — ganz ohne Wartezeit.
+    </p>
+
+    <div>
+      <button class="cta-btn" onclick="openChat()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        Jetzt mit Don José chatten
+      </button>
+      <p class="cta-note">Kostenlos · Kein Konto erforderlich · 🇩🇪 Deutsch · 🇬🇧 English · 🇪🇸 Español</p>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div>
+      <div class="info-label">Öffnungszeiten</div>
+      <div class="info-value">So–Fr ab 11:00 · Sa ab 10:00</div>
+    </div>
+    <div class="sep"></div>
+    <div>
+      <div class="info-label">Adresse</div>
+      <div class="info-value">Barfüßerstr. 44, Marburg</div>
+    </div>
+    <div class="sep"></div>
+    <div>
+      <div class="info-label">Reservierung</div>
+      <div class="info-value">06421 – 809 83 83</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     CHAT WIDGET
+══════════════════════════════════════════ -->
+<div id="chatButton" onclick="toggleChat()">💬</div>
 
 <div id="chatBox">
   <div id="header">
-    <div id="avatar">🍷</div>
-    <div>Don José</div>
+    <div id="avatar">J</div>
+    <div id="header-info">
+      <div id="header-name">Don José</div>
+      <div id="header-sub">Camarero virtual · La Siesta</div>
+    </div>
   </div>
   <div id="messages"></div>
   <div id="typing">
     <div class="dots"><span>.</span><span>.</span><span>.</span></div>
   </div>
   <div id="inputArea">
-    <input id="userInput" placeholder="Nachricht..." />
+    <input id="userInput" placeholder="Ihre Nachricht..." />
     <button id="sendBtn">➤</button>
-    <button id="resetBtn">⟲</button>
+    <button id="resetBtn" title="Gespräch neu starten">⟲</button>
   </div>
 </div>
 
 <script>
-  // ─── Config ───────────────────────────────────────────────
   const WEBHOOK = "https://n8n.smart-office.es/webhook/a4aee6e5-844d-42a8-b8b9-32b4284f036b/chat";
-  const WELCOME = "Hallo! Willkommen bei La Siesta 😊 Möchten Sie etwas essen oder soll ich Ihnen etwas empfehlen?";
+  const WELCOME = "¡Hola! Willkommen bei La Siesta 😊 Darf ich Ihnen unsere Tapas vorstellen oder haben Sie eine Frage?";
 
-  // ─── State ────────────────────────────────────────────────
-  // Each page load = new unique session. Multiple tabs = multiple isolated sessions.
   let sessionId = crypto.randomUUID();
   let isOpen = false;
 
-  // ─── Elements ─────────────────────────────────────────────
-  const chatButton = document.getElementById("chatButton");
   const chatBox    = document.getElementById("chatBox");
   const messagesEl = document.getElementById("messages");
   const typingEl   = document.getElementById("typing");
   const inputEl    = document.getElementById("userInput");
 
-  // ─── Open / Close ─────────────────────────────────────────
-  chatButton.addEventListener("click", () => {
+  // Abre el chat (llamado desde el botón CTA de la landing)
+  function openChat() {
+    chatBox.style.display = "flex";
+    isOpen = true;
+    inputEl.focus();
+  }
+
+  function toggleChat() {
     if (isOpen) {
       chatBox.style.display = "none";
       isOpen = false;
-      resetSession(); // ← reset al cerrar: nueva sesión limpia para el próximo usuario
+      resetSession();
     } else {
-      chatBox.style.display = "flex";
-      isOpen = true;
+      openChat();
     }
-  });
+  }
 
-  // ─── Add a message bubble ─────────────────────────────────
   function addMessage(text, sender) {
     const row    = document.createElement("div");
     row.className = "msg " + sender;
-
     const bubble = document.createElement("div");
     bubble.className = "bubble";
     bubble.innerText = text;
-
     row.appendChild(bubble);
     messagesEl.appendChild(row);
     row.scrollIntoView({ behavior: "smooth" });
   }
 
-  // ─── Send message ─────────────────────────────────────────
   async function send() {
     const text = inputEl.value.trim();
     if (!text) return;
@@ -227,7 +492,6 @@ body {
       const data = await res.json();
       typingEl.style.display = "none";
 
-      // Acepta reply / output / text según como responda tu n8n
       const reply = data.reply ?? data.output ?? data.text ?? "⚠️ Keine Antwort erhalten.";
       addMessage(reply, "bot");
 
@@ -238,13 +502,11 @@ body {
     }
   }
 
-  // ─── Reset session ────────────────────────────────────────
   function resetSession() {
     const oldSessionId = sessionId;
-    sessionId = crypto.randomUUID(); // nuevo ID único → conversación completamente aislada
+    sessionId = crypto.randomUUID();
     messagesEl.innerHTML = "";
 
-    // Avisa a n8n para que limpie la memoria del sessionId anterior (fire-and-forget)
     fetch(WEBHOOK + "/reset", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -254,12 +516,11 @@ body {
     addMessage(WELCOME, "bot");
   }
 
-  // ─── Event listeners ──────────────────────────────────────
   inputEl.addEventListener("keypress", e => { if (e.key === "Enter") send(); });
   document.getElementById("sendBtn").addEventListener("click", send);
   document.getElementById("resetBtn").addEventListener("click", resetSession);
 
-  // ─── Welcome message on first load ────────────────────────
+  // Mensaje de bienvenida al cargar
   addMessage(WELCOME, "bot");
 </script>
 
